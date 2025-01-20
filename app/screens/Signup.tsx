@@ -1,38 +1,23 @@
 import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView , Platform,
-} from 'react-native'
+    TouchableOpacity} from 'react-native'
 import React, { useState } from 'react'
 import { useSafeAreaFrame } from 'react-native-safe-area-context'
 import { FIREBASE_AUTH } from '@/FirebaseConfig'
 import { ActivityIndicator } from 'react-native-paper'
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
-import { Link } from 'expo-router';
+import { Link } from 'expo-router'
 import { useNavigation } from '@react-navigation/native'
-import SignUp from './Signup'
+import Login from './Login'
 
 
-const Login = () => {
+const SignUp = () => {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-
-    const auth = FIREBASE_AUTH;
     const navigation = useNavigation();
 
-    const SignIn = async () => {
-
-        setLoading(true);
-
-        try {
-            const res = await signInWithEmailAndPassword(auth, email, password);
-            alert("Login Sucessfull");
-        } catch (error) {
-            console.log(error);
-            alert("Login failed : " + error);
-        } finally {
-            setLoading(false);
-        }
-    }
+    const auth = FIREBASE_AUTH;
 
     const SignUp = async () => {
         setLoading(true);
@@ -40,7 +25,7 @@ const Login = () => {
             const res = await createUserWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.log(error);
-            alert("email send : " + error);
+            alert("Account Craeted" + error);
         } finally {
             setLoading(false);
         }
@@ -53,7 +38,7 @@ const Login = () => {
         style={styles.keyboardAvoidingView}
       >
 
-            <Text style={styles.title}>Welcome Back!</Text>
+            <Text style={styles.title}>Sign Up</Text>
             <TextInput value={email} style={styles.input} placeholder='Email' autoCapitalize='none' onChangeText={(text) => setEmail(text)} ></TextInput>
             <TextInput value={password} style={styles.input} placeholder='Password' autoCapitalize='none' secureTextEntry={true} onChangeText={(text) => setPassword(text)} ></TextInput>
 
@@ -61,9 +46,11 @@ const Login = () => {
 
             )
                 : <>
-                    <Button title="Login" onPress={SignIn} />
-                    <Button title="Create an Account" onPress={()=>navigation.navigate(SignUp)} />
-                    {/* <Link href="/screens/Signup">About</Link> */}
+                    <Button title="Create an Account" onPress={SignUp} />
+                    <TouchableOpacity onPress={() => navigation.navigate(Login)} style={styles.link}>
+      <Text style={styles.text}>Back to Login</Text>
+    </TouchableOpacity>
+
                 </>
             }
             </KeyboardAvoidingView>
@@ -71,7 +58,7 @@ const Login = () => {
     )
 }
 
-export default Login;
+export default SignUp;
 
 
 const styles = StyleSheet.create({
@@ -108,5 +95,13 @@ const styles = StyleSheet.create({
     keyboardAvoidingView :{
         width: '100%',
 
-    }
+    },
+    link: {
+        marginTop: 20,
+        padding: 10,
+      },
+      text: {
+        color: '#007BFF',
+        textDecorationLine: 'underline', // Optional, to make it look like a link
+      },
 });
