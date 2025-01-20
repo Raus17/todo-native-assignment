@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TextInput, Button, KeyboardAvoidingView , Platf
 } from 'react-native'
 import React, { useState } from 'react'
 import { useSafeAreaFrame } from 'react-native-safe-area-context'
-import { FIREBASE_AUTH } from '@/FirebaseConfig'
+import { FIREBASE_AUTH } from '../../FirebaseConfig'
 import { ActivityIndicator } from 'react-native-paper'
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 import { Link } from 'expo-router';
