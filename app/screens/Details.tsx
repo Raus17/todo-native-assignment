@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Modal,
   StyleSheet,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const Details = () => {
@@ -18,14 +19,46 @@ const Details = () => {
   const [description, setDescription] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // Load events from AsyncStorage when the app starts
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const storedEvents = await AsyncStorage.getItem('events');
+        if (storedEvents) {
+          setEvents(JSON.parse(storedEvents));
+        }
+      } catch (error) {
+        console.error('Error loading events:', error);
+      }
+    };
+    loadEvents();
+  }, []);
+
+  // Save events to AsyncStorage
+  const saveEvents = async (newEvents) => {
+    try {
+      await AsyncStorage.setItem('events', JSON.stringify(newEvents));
+      setEvents(newEvents);
+    } catch (error) {
+      console.error('Error saving events:', error);
+    }
+  };
+
   const addEvent = () => {
     if (title && description) {
-      setEvents([...events, { title, date, description }]);
+      const newEvent = { title, date, description };
+      const updatedEvents = [...events, newEvent];
+      saveEvents(updatedEvents); // Save updated events to AsyncStorage
       setTitle('');
       setDescription('');
       setDate(new Date());
       setModalVisible(false);
     }
+  };
+
+  const deleteEvent = (index) => {
+    const updatedEvents = events.filter((_, i) => i !== index);
+    saveEvents(updatedEvents); // Save updated events after deletion
   };
 
   return (
@@ -98,11 +131,20 @@ const Details = () => {
       <FlatList
         data={events}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View style={styles.event}>
             <Text style={styles.eventTitle}>{item.title}</Text>
-            <Text style={styles.eventDate}>{item.date.toDateString()}</Text>
+            <Text style={styles.eventDate}>
+  {new Date(item.date).toDateString()}
+</Text>
+
             <Text style={styles.eventDescription}>{item.description}</Text>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => deleteEvent(index)}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -117,15 +159,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   addEventButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#4CAF50', // Subtle green for add button
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: 'center',
     marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   addEventButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   modalContainer: {
@@ -166,36 +213,50 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   datePickerButton: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#E8EAF6', // Light blue-gray for the date picker button
+    padding: 12,
+    borderRadius: 8,
     marginBottom: 10,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#C5CAE9',
   },
   datePickerText: {
-    color: '#333',
+    color: '#3F51B5',
+    fontWeight: '500',
   },
   saveButton: {
-    backgroundColor: '#28a745',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#5C67F2', // Subtle blue for save button
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
     marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   saveButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   cancelButton: {
-    backgroundColor: '#dc3545',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: '#F44336', // Soft red for cancel button
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   cancelButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   event: {
@@ -216,6 +277,17 @@ const styles = StyleSheet.create({
   eventDescription: {
     fontSize: 14,
     color: '#777',
+  },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: '#dc3545',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

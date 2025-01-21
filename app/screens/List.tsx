@@ -58,6 +58,7 @@ const List = ({navigation} : RouterProps) => {
           name="PassedEvent" 
           component={PassedEvent} 
           options={{headerShown: false}}
+          initialParams={{ passedEvents: [] }}
         />
 
     {/* <Button onPress={handleLogout} title='LOGOUT'></Button> */}
